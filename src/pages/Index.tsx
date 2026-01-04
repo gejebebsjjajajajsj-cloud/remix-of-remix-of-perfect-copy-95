@@ -38,8 +38,8 @@ const Index = () => {
   const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
   const [currentOrderType, setCurrentOrderType] = useState<"subscription" | "whatsapp" | null>(null);
   const [showWhatsappAccessModal, setShowWhatsappAccessModal] = useState(false);
+  const [whatsappLink, setWhatsappLink] = useState<string | null>(null);
   const [siteConfig, setSiteConfig] = useState<SiteConfig>(() => loadSiteConfig());
-
   useEffect(() => {
     // Track page visit
     supabase.from("analytics_events").insert({ event_type: "visit" });
@@ -61,21 +61,16 @@ const Index = () => {
         (payload) => {
           const newStatus = (payload.new as any).status;
           if (newStatus === "paid") {
+            // Fecha o modal do PIX e abre o modal de acesso ao WhatsApp
+            setPixModalOpen(false);
+
             if (currentOrderType === "whatsapp") {
-              // Redireciona para o grupo VIP de R$150 após pagamento aprovado
-              window.open(
-                "https://chat.whatsapp.com/LgkcC3dkAt908VyoilclWv",
-                "_blank",
-                "noopener,noreferrer",
-              );
+              setWhatsappLink("https://chat.whatsapp.com/LgkcC3dkAt908VyoilclWv");
             } else if (currentOrderType === "subscription") {
-              // Redireciona para o grupo de assinantes após pagamento aprovado
-              window.open(
-                "https://chat.whatsapp.com/ED0zKAGCwMGCydFzuJpYa9",
-                "_blank",
-                "noopener,noreferrer",
-              );
+              setWhatsappLink("https://chat.whatsapp.com/ED0zKAGCwMGCydFzuJpYa9");
             }
+
+            setShowWhatsappAccessModal(true);
           }
         },
       )
@@ -421,8 +416,11 @@ const Index = () => {
 
           <Button
             className="mt-4 w-full rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/40 hover:bg-emerald-400"
+            disabled={!whatsappLink}
             onClick={() => {
-              window.open("https://chat.whatsapp.com/LgkcC3dkAt908VyoilclWv", "_blank", "noopener,noreferrer");
+              if (whatsappLink) {
+                window.open(whatsappLink, "_blank", "noopener,noreferrer");
+              }
             }}
           >
             Entrar no grupo VIP agora
