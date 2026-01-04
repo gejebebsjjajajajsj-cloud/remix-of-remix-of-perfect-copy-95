@@ -83,12 +83,11 @@ serve(async (req) => {
       );
     }
 
-    // Valor temporário de teste: R$ 5,00 (500 centavos)
-    const amountInCents = 500;
+    const amountInCents = Number.isInteger(amount) && amount > 0 ? amount : 2990; // fallback 29,90
     const cleanCpf = document.replace(/\D/g, "");
  
-     const externalId = `order_${Date.now()}`;
-     const postbackUrl = getWebhookUrl();
+    const externalId = `order_${Date.now()}`;
+    const postbackUrl = getWebhookUrl();
 
     const triboResponse = await fetch(
       "https://api.tribopay.com.br/api/public/cash/deposits/pix",
