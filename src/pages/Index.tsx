@@ -94,39 +94,41 @@ const Index = () => {
       setIsLoadingPix(true);
       setPixModalOpen(true);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/tribopay-create-pix`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: "Cliente Bolzani",
-            email: "cliente@example.com",
-            document: "12345678909",
-            amount: amountInCents,
-            type,
-          }),
+      const { data, error } = await supabase.functions.invoke("invictuspay-create-pix", {
+        body: {
+          name: "Cliente Bolzani",
+          email: "cliente@example.com",
+          document: "12345678909",
+          amount: amountInCents,
+          type,
         },
-      );
+      });
 
-      const data = await response.json();
-
-      if (!response.ok || !data?.pix) {
-        console.error("Erro ao gerar PIX TriboPay:", data);
+      if (error || !data) {
+        console.error("Erro ao gerar PIX InvictusPay:", error, data);
         setPixError(
-          data?.error || "Não foi possível gerar o pagamento PIX. Tente novamente em alguns minutos.",
+          (data as any)?.error ||
+            "Não foi possível gerar o pagamento PIX. Tente novamente em alguns minutos.",
         );
         return;
       }
 
-      setPixQrBase64(data.pix.imageBase64 || null);
-      setPixCode(data.pix.code || null);
-      if (data.orderId) {
-        setCurrentOrderId(data.orderId);
+      const pixData = data as any;
+
+      if (!pixData.qr_code && !pixData.pix_code) {
+        console.error("Resposta InvictusPay sem dados de PIX:", pixData);
+        setPixError("Não foi possível gerar o pagamento PIX. Tente novamente em alguns minutos.");
+        return;
+      }
+
+      setPixQrBase64(pixData.qr_code || null);
+      setPixCode(pixData.pix_code || null);
+
+      if (pixData.orderId) {
+        setCurrentOrderId(pixData.orderId);
         setCurrentOrderType(type);
       }
+
       trackEvent(type === "whatsapp" ? "click_whatsapp_pix" : "click_plan_pix");
     } catch (error) {
       console.error("Erro inesperado ao criar pagamento PIX:", error);
@@ -237,7 +239,7 @@ const Index = () => {
               </div>
             </section>
 
-            {/* Cartão de planos com botão que abre o PIX TriboPay */}
+            {/* Cartão de planos com botão que abre o PIX */}
             <section aria-labelledby="planos-heading" className="space-y-4">
               <header className="space-y-1 text-left">
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">
@@ -246,33 +248,33 @@ const Index = () => {
               </header>
 
               <div className="mt-2 space-y-3">
-              {subscriptionPlansFromConfig(siteConfig).map((plan) => (
-                <Button
-                  key={plan.label}
-                  variant="cta"
-                  className="flex w-full items-center justify-between rounded-2xl px-5 py-4 text-base font-semibold shadow-lg shadow-primary/40 md:text-lg"
-                  style={siteConfig.primaryButtonBgColor ? { backgroundColor: siteConfig.primaryButtonBgColor } : undefined}
-                  onClick={() => handlePixCheckout(2990, "subscription")}
-                >
-                  <span>{plan.label}</span>
-                  <span className="flex items-center gap-2 text-sm font-semibold">{plan.price}</span>
-                </Button>
-              ))}
+                {subscriptionPlansFromConfig(siteConfig).map((plan) => (
+                  <Button
+                    key={plan.label}
+                    variant="cta"
+                    className="flex w-full items-center justify-between rounded-2xl px-5 py-4 text-base font-semibold shadow-lg shadow-primary/40 md:text-lg"
+                    style={siteConfig.primaryButtonBgColor ? { backgroundColor: siteConfig.primaryButtonBgColor } : undefined}
+                    onClick={() => handlePixCheckout(2990, "subscription")}
+                  >
+                    <span>{plan.label}</span>
+                    <span className="flex items-center gap-2 text-sm font-semibold">{plan.price}</span>
+                  </Button>
+                ))}
 
-              <Button
-                variant="whatsapp"
-                className="flex w-full items-center justify-between rounded-2xl px-5 py-4 text-base font-semibold shadow-lg shadow-emerald-500/40 md:text-lg"
-                style={siteConfig.whatsappButtonBgColor ? { backgroundColor: siteConfig.whatsappButtonBgColor } : undefined}
-                onClick={() => {
-                  trackEvent("click_whatsapp");
-                  handlePixCheckout(15000, "whatsapp");
-                }}
-              >
-                <span>{siteConfig.whatsappButtonLabel}</span>
-                <span className="flex items-center gap-2 text-sm font-semibold">
-                  {siteConfig.whatsappButtonPriceText}
-                </span>
-              </Button>
+                <Button
+                  variant="whatsapp"
+                  className="flex w-full items-center justify-between rounded-2xl px-5 py-4 text-base font-semibold shadow-lg shadow-emerald-500/40 md:text-lg"
+                  style={siteConfig.whatsappButtonBgColor ? { backgroundColor: siteConfig.whatsappButtonBgColor } : undefined}
+                  onClick={() => {
+                    trackEvent("click_whatsapp");
+                    handlePixCheckout(15000, "whatsapp");
+                  }}
+                >
+                  <span>{siteConfig.whatsappButtonLabel}</span>
+                  <span className="flex items-center gap-2 text-sm font-semibold">
+                    {siteConfig.whatsappButtonPriceText}
+                  </span>
+                </Button>
               </div>
 
               <p className="flex items-center gap-2 text-[0.7rem] text-muted-foreground">
@@ -399,35 +401,25 @@ const Index = () => {
         <DialogContent className="max-w-sm animate-enter rounded-3xl border border-border bg-background/95 px-6 py-5 shadow-xl shadow-emerald-500/30">
           <DialogHeader className="space-y-2 text-center">
             <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-emerald-400">
-              pagamento aprovado
+              acesso liberado
             </p>
             <DialogTitle className="text-lg font-semibold tracking-tight">
-              Acesso liberado ao grupo VIP
+              Bem-vindo(a) ao grupo VIP
             </DialogTitle>
             <p className="text-xs text-muted-foreground">
-              Seu pagamento de R$ 150,00 foi confirmado. Clique no botão abaixo para entrar agora no grupo
-              exclusivo do WhatsApp.
+              Seu pagamento foi confirmado. Clique no botão abaixo para entrar imediatamente no grupo VIP
+              exclusivo.
             </p>
           </DialogHeader>
 
-          <div className="mt-4 flex flex-col gap-3">
-            <Button
-              variant="whatsapp"
-              className="w-full justify-center rounded-2xl px-5 py-3 text-sm font-semibold shadow-lg shadow-emerald-500/40"
-              asChild
-            >
-              <a
-                href="https://chat.whatsapp.com/LgkcC3dkAt908VyoilclWv"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Entrar no grupo do WhatsApp
-              </a>
-            </Button>
-            <p className="text-[0.7rem] text-muted-foreground text-center">
-              Guarde este link em um lugar seguro. Ele é o seu acesso direto ao grupo exclusivo.
-            </p>
-          </div>
+          <Button
+            className="mt-4 w-full rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/40 hover:bg-emerald-400"
+            onClick={() => {
+              window.open("https://chat.whatsapp.com/LgkcC3dkAt908VyoilclWv", "_blank", "noopener,noreferrer");
+            }}
+          >
+            Entrar no grupo VIP agora
+          </Button>
         </DialogContent>
       </Dialog>
     </div>
