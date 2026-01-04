@@ -83,7 +83,8 @@ serve(async (req) => {
       );
     }
 
-    const amountInCents = Number.isInteger(amount) && amount > 0 ? amount : 2990; // fallback 29,90
+    // Valor temporário de teste: R$ 1,00 (100 centavos)
+    const amountInCents = 100;
     const cleanCpf = document.replace(/\D/g, "");
 
     const externalId = `order_${Date.now()}`;
