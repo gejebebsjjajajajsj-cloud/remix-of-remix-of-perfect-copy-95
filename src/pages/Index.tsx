@@ -398,14 +398,14 @@ const Index = () => {
 
                 <div className="rounded-2xl border border-border/60 bg-muted/40 p-3 text-left">
                   <p className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                    Como pagar com a chave aleatria
+                    Como pagar com a chave PIX
                   </p>
                   <ol className="list-decimal space-y-1 pl-4 text-[0.7rem] leading-relaxed">
-                    <li>Abra o aplicativo do seu banco normalmente.</li>
-                    <li>V E1 em <span className="font-semibold">PIX &gt; Pagar com c F3digo copia e cola</span>.</li>
-                    <li>Cole o c F3digo PIX que voc EA copiou aqui no campo indicado.</li>
-                    <li>Confirme se o valor e o destinat E1rio est E3o corretos e toque em <span className="font-semibold">Pagar</span>.</li>
-                    <li>Em poucos segundos, este site vai reconhecer o pagamento e liberar automaticamente seu acesso.</li>
+                    <li>Abra o aplicativo do seu banco.</li>
+                    <li>Vá em <span className="font-semibold">PIX &gt; Pagar com código copia e cola</span>.</li>
+                    <li>Cole o código PIX que você copiou aqui no campo indicado.</li>
+                    <li>Confirme se o valor e o nome do destinatário estão corretos e toque em <span className="font-semibold">Pagar</span>.</li>
+                    <li>Em poucos segundos o pagamento é aprovado e o acesso ao grupo é liberado automaticamente.</li>
                   </ol>
                 </div>
               </div>
