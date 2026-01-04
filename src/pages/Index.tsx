@@ -94,7 +94,7 @@ const Index = () => {
       setIsLoadingPix(true);
       setPixModalOpen(true);
 
-      const { data, error } = await supabase.functions.invoke("invictuspay-create-pix", {
+      const { data, error } = await supabase.functions.invoke("tribopay-create-pix", {
         body: {
           name: "Cliente Bolzani",
           email: "cliente@example.com",
@@ -105,7 +105,7 @@ const Index = () => {
       });
 
       if (error || !data) {
-        console.error("Erro ao gerar PIX InvictusPay:", error, data);
+        console.error("Erro ao gerar PIX TriboPay:", error, data);
         setPixError(
           (data as any)?.error ||
             "Não foi possível gerar o pagamento PIX. Tente novamente em alguns minutos.",
@@ -115,14 +115,18 @@ const Index = () => {
 
       const pixData = data as any;
 
-      if (!pixData.qr_code && !pixData.pix_code) {
-        console.error("Resposta InvictusPay sem dados de PIX:", pixData);
+      // Estrutura típica da TriboPay: data.pix.imageBase64 e data.pix.code
+      const qrBase64 = pixData.pix?.imageBase64 ?? pixData.qr_code ?? null;
+      const pixCodeValue = pixData.pix?.code ?? pixData.pix_code ?? null;
+
+      if (!qrBase64 && !pixCodeValue) {
+        console.error("Resposta TriboPay sem dados de PIX:", pixData);
         setPixError("Não foi possível gerar o pagamento PIX. Tente novamente em alguns minutos.");
         return;
       }
 
-      setPixQrBase64(pixData.qr_code || null);
-      setPixCode(pixData.pix_code || null);
+      setPixQrBase64(qrBase64);
+      setPixCode(pixCodeValue);
 
       if (pixData.orderId) {
         setCurrentOrderId(pixData.orderId);
