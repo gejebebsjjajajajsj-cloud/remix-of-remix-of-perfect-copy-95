@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import banner from "@/assets/banner-user-2.jpg";
@@ -27,6 +28,7 @@ const subscriptionPlansFromConfig = (config: SiteConfig) => [
 
 const Index = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [pixModalOpen, setPixModalOpen] = useState(false);
   const [isLoadingPix, setIsLoadingPix] = useState(false);
@@ -145,9 +147,10 @@ const Index = () => {
     if (!pixCode) return;
     try {
       await navigator.clipboard.writeText(pixCode);
-      alert("Código PIX copiado para a área de transferência.");
+      toast({ description: "Código PIX copiado para a área de transferência." });
     } catch (error) {
       console.error("Erro ao copiar código PIX:", error);
+      toast({ variant: "destructive", description: "Não foi possível copiar o código PIX." });
     }
   };
 
