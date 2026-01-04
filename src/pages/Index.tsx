@@ -385,14 +385,29 @@ const Index = () => {
                 </div>
               )}
 
-              <div className="mt-1 flex items-center justify-between text-[0.7rem] text-muted-foreground">
-                <span>
-                  Status: <span className="font-semibold text-primary">Aguardando pagamento</span>
-                </span>
-                <span className="flex items-center gap-1">
-                  <Lock className="h-3 w-3" aria-hidden="true" />
-                  <span>Ambiente protegido</span>
-                </span>
+              <div className="mt-1 space-y-2 text-[0.7rem] text-muted-foreground">
+                <div className="flex items-center justify-between">
+                  <span>
+                    Status: <span className="font-semibold text-primary">Aguardando pagamento</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Lock className="h-3 w-3" aria-hidden="true" />
+                    <span>Ambiente protegido</span>
+                  </span>
+                </div>
+
+                <div className="rounded-2xl border border-border/60 bg-muted/40 p-3 text-left">
+                  <p className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    Como pagar com a chave aleatria
+                  </p>
+                  <ol className="list-decimal space-y-1 pl-4 text-[0.7rem] leading-relaxed">
+                    <li>Abra o aplicativo do seu banco normalmente.</li>
+                    <li>V E1 em <span className="font-semibold">PIX &gt; Pagar com c F3digo copia e cola</span>.</li>
+                    <li>Cole o c F3digo PIX que voc EA copiou aqui no campo indicado.</li>
+                    <li>Confirme se o valor e o destinat E1rio est E3o corretos e toque em <span className="font-semibold">Pagar</span>.</li>
+                    <li>Em poucos segundos, este site vai reconhecer o pagamento e liberar automaticamente seu acesso.</li>
+                  </ol>
+                </div>
               </div>
             </div>
           )}
